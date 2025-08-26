@@ -101,7 +101,8 @@ export function ModulePermissions() {
 
   const loadPermissions = async () => {
     try {
-      const { data, error } = await supabase
+      // Use type assertion to bypass TypeScript issues with new table
+      const { data, error } = await (supabase as any)
         .from('role_permissions')
         .select('*');
 
@@ -113,7 +114,14 @@ export function ModulePermissions() {
         return;
       }
 
-      setPermissions(data);
+      // Map the data to match our interface
+      const mappedPermissions: RolePermission[] = data.map((item: any) => ({
+        role: item.role,
+        moduleId: item.module_id,
+        enabled: item.enabled
+      }));
+
+      setPermissions(mappedPermissions);
     } catch (error) {
       console.error('Error loading permissions:', error);
       toast.error('Failed to load permissions');
@@ -162,9 +170,14 @@ export function ModulePermissions() {
     });
 
     try {
-      const { error } = await supabase
+      // Use type assertion to bypass TypeScript issues with new table
+      const { error } = await (supabase as any)
         .from('role_permissions')
-        .insert(defaultPermissions);
+        .insert(defaultPermissions.map(p => ({
+          role: p.role,
+          module_id: p.moduleId,
+          enabled: p.enabled
+        })));
 
       if (error) throw error;
 
@@ -182,7 +195,8 @@ export function ModulePermissions() {
 
     try {
       if (existing) {
-        const { error } = await supabase
+        // Use type assertion to bypass TypeScript issues with new table
+        const { error } = await (supabase as any)
           .from('role_permissions')
           .update({ enabled: newEnabled })
           .eq('role', role)
@@ -190,7 +204,7 @@ export function ModulePermissions() {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('role_permissions')
           .insert({ role, module_id: moduleId, enabled: newEnabled });
 

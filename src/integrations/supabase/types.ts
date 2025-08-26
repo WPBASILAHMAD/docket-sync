@@ -302,6 +302,33 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          module_id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          module_id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          module_id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tracking_history: {
         Row: {
           connote_id: string
