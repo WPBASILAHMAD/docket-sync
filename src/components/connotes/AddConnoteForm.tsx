@@ -93,9 +93,88 @@ export function AddConnoteForm() {
     );
   };
 
+  // Zip code validation patterns for different countries
+  const zipCodePatterns: { [key: string]: RegExp } = {
+    'United States': /^\d{5}(-\d{4})?$/,
+    'Canada': /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/,
+    'United Kingdom': /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i,
+    'Germany': /^\d{5}$/,
+    'France': /^\d{5}$/,
+    'Italy': /^\d{5}$/,
+    'Spain': /^\d{5}$/,
+    'Australia': /^\d{4}$/,
+    'Japan': /^\d{3}-\d{4}$/,
+    'Netherlands': /^\d{4} ?[A-Z]{2}$/i,
+    'Sweden': /^\d{3} ?\d{2}$/,
+    'Switzerland': /^\d{4}$/,
+    'Austria': /^\d{4}$/,
+    'Belgium': /^\d{4}$/,
+    'Denmark': /^\d{4}$/,
+    'Norway': /^\d{4}$/,
+    'Finland': /^\d{5}$/,
+    'Pakistan': /^\d{5}$/,
+    'India': /^\d{6}$/,
+    'China': /^\d{6}$/,
+    'Brazil': /^\d{5}-?\d{3}$/,
+    'Mexico': /^\d{5}$/,
+    'South Korea': /^\d{5}$/,
+    'Singapore': /^\d{6}$/,
+    'New Zealand': /^\d{4}$/,
+    'Ireland': /^[A-Z]\d{2} ?[A-Z\d]{4}$/i,
+    'Portugal': /^\d{4}-?\d{3}$/,
+    'Poland': /^\d{2}-\d{3}$/,
+    'Czech Republic': /^\d{3} ?\d{2}$/,
+    'Hungary': /^\d{4}$/,
+    'Greece': /^\d{3} ?\d{2}$/,
+    'Turkey': /^\d{5}$/,
+    'Russia': /^\d{6}$/,
+    'South Africa': /^\d{4}$/,
+    'Egypt': /^\d{5}$/,
+    'Israel': /^\d{5}$/,
+    'Saudi Arabia': /^\d{5}(-\d{4})?$/,
+    'United Arab Emirates': /^\d{5}$/,
+    'Thailand': /^\d{5}$/,
+    'Malaysia': /^\d{5}$/,
+    'Indonesia': /^\d{5}$/,
+    'Philippines': /^\d{4}$/,
+    'Vietnam': /^\d{6}$/
+  };
+
+  const validateZipCode = (zipCode: string, country: string): boolean => {
+    if (!zipCode || !country) return true; // Allow empty zip codes
+    
+    const pattern = zipCodePatterns[country];
+    if (!pattern) return true; // If we don't have a pattern for the country, allow it
+    
+    return pattern.test(zipCode.trim());
+  };
+
+  const getZipCodeError = (zipCode: string, country: string): string | null => {
+    if (!zipCode || !country) return null;
+    
+    if (!validateZipCode(zipCode, country)) {
+      return `Invalid zip code format for ${country}`;
+    }
+    
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
+
+    // Validate zip codes before submission
+    const shipperZipError = getZipCodeError(formData.shipper_zip_code, formData.shipper_country);
+    const consigneeZipError = getZipCodeError(formData.consignee_zip_code, formData.consignee_country);
+
+    if (shipperZipError || consigneeZipError) {
+      toast({
+        title: "Validation Error",
+        description: shipperZipError || consigneeZipError || "Invalid zip code format",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -272,7 +351,11 @@ export function AddConnoteForm() {
                 value={formData.shipper_zip_code}
                 onChange={(e) => updateFormData('shipper_zip_code', e.target.value)}
                 placeholder="e.g., 12345"
+                className={!validateZipCode(formData.shipper_zip_code, formData.shipper_country) && formData.shipper_zip_code && formData.shipper_country ? 'border-destructive' : ''}
               />
+              {!validateZipCode(formData.shipper_zip_code, formData.shipper_country) && formData.shipper_zip_code && formData.shipper_country && (
+                <p className="text-sm text-destructive mt-1">Invalid zip code format for {formData.shipper_country}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="shipper_email">Email</Label>
@@ -352,7 +435,11 @@ export function AddConnoteForm() {
                 value={formData.consignee_zip_code}
                 onChange={(e) => updateFormData('consignee_zip_code', e.target.value)}
                 placeholder="e.g., 12345"
+                className={!validateZipCode(formData.consignee_zip_code, formData.consignee_country) && formData.consignee_zip_code && formData.consignee_country ? 'border-destructive' : ''}
               />
+              {!validateZipCode(formData.consignee_zip_code, formData.consignee_country) && formData.consignee_zip_code && formData.consignee_country && (
+                <p className="text-sm text-destructive mt-1">Invalid zip code format for {formData.consignee_country}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="consignee_email">Email</Label>
