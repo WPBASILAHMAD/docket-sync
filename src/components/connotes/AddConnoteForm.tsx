@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Package, User, MapPin, DollarSign } from 'lucide-react';
+import { countries } from '@/data/countries';
 
 interface ConnoteFormData {
   awb_number: string;
@@ -18,12 +19,14 @@ interface ConnoteFormData {
   shipper_address: string;
   shipper_city: string;
   shipper_country: string;
+  shipper_zip_code: string;
   shipper_phone: string;
   shipper_email: string;
   consignee_name: string;
   consignee_address: string;
   consignee_city: string;
   consignee_country: string;
+  consignee_zip_code: string;
   consignee_phone: string;
   consignee_email: string;
   shipment_type: 'documents' | 'package' | 'fragile' | 'dangerous';
@@ -53,12 +56,14 @@ export function AddConnoteForm() {
     shipper_address: '',
     shipper_city: '',
     shipper_country: '',
+    shipper_zip_code: '',
     shipper_phone: '',
     shipper_email: '',
     consignee_name: '',
     consignee_address: '',
     consignee_city: '',
     consignee_country: '',
+    consignee_zip_code: '',
     consignee_phone: '',
     consignee_email: '',
     shipment_type: 'package',
@@ -247,11 +252,26 @@ export function AddConnoteForm() {
             </div>
             <div>
               <Label htmlFor="shipper_country">Country</Label>
+              <Select value={formData.shipper_country} onValueChange={(value) => updateFormData('shipper_country', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent className="max-h-48">
+                  {countries.map((country) => (
+                    <SelectItem key={country.code} value={country.name}>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="shipper_zip_code">Zip Code</Label>
               <Input
-                id="shipper_country"
-                value={formData.shipper_country}
-                onChange={(e) => updateFormData('shipper_country', e.target.value)}
-                required
+                id="shipper_zip_code"
+                value={formData.shipper_zip_code}
+                onChange={(e) => updateFormData('shipper_zip_code', e.target.value)}
+                placeholder="e.g., 12345"
               />
             </div>
             <div>
@@ -312,11 +332,26 @@ export function AddConnoteForm() {
             </div>
             <div>
               <Label htmlFor="consignee_country">Country</Label>
+              <Select value={formData.consignee_country} onValueChange={(value) => updateFormData('consignee_country', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent className="max-h-48">
+                  {countries.map((country) => (
+                    <SelectItem key={country.code} value={country.name}>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="consignee_zip_code">Zip Code</Label>
               <Input
-                id="consignee_country"
-                value={formData.consignee_country}
-                onChange={(e) => updateFormData('consignee_country', e.target.value)}
-                required
+                id="consignee_zip_code"
+                value={formData.consignee_zip_code}
+                onChange={(e) => updateFormData('consignee_zip_code', e.target.value)}
+                placeholder="e.g., 12345"
               />
             </div>
             <div>

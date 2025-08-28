@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useModulePermissions } from '@/hooks/useModulePermissions';
 import { cn } from '@/lib/utils';
 import { 
   Package, 
@@ -95,8 +96,23 @@ const navigation: NavItem[] = [
   },
 ];
 
+// Map navigation items to module IDs for permission checking
+const getModuleId = (item: NavItem): string => {
+  const moduleMap: { [key: string]: string } = {
+    'Dashboard': 'dashboard',
+    'Manifest': 'manifest',
+    'Connotes': 'connotes', 
+    'Tracking': 'tracking',
+    'Finance': 'finance',
+    'Users': 'users',
+    'Settings': 'settings'
+  };
+  return moduleMap[item.title] || item.title.toLowerCase();
+};
+
 export function Sidebar() {
   const { profile, hasRole } = useAuth();
+  const { hasModuleAccess } = useModulePermissions();
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>(['Manifest', 'Connotes']);
 
@@ -109,8 +125,14 @@ export function Sidebar() {
   };
 
   const canAccessItem = (item: NavItem): boolean => {
-    if (!item.roles) return true;
-    return hasRole(item.roles);
+    // Check database permissions first
+    const moduleId = getModuleId(item);
+    if (!hasModuleAccess(moduleId)) return false;
+    
+    // Fallback to role-based checking for items with specific roles
+    if (item.roles && !hasRole(item.roles)) return false;
+    
+    return true;
   };
 
   const renderNavItem = (item: NavItem, level = 0) => {
