@@ -70,6 +70,7 @@ export type Database = {
           consignee_email: string | null
           consignee_name: string
           consignee_phone: string | null
+          consignee_zip_code: string | null
           created_at: string
           created_by: string
           currency: string | null
@@ -93,6 +94,7 @@ export type Database = {
           shipper_email: string | null
           shipper_name: string
           shipper_phone: string | null
+          shipper_zip_code: string | null
           status: Database["public"]["Enums"]["connote_status"] | null
           total_charges: number
           tracking_updates: Json | null
@@ -107,6 +109,7 @@ export type Database = {
           consignee_email?: string | null
           consignee_name: string
           consignee_phone?: string | null
+          consignee_zip_code?: string | null
           created_at?: string
           created_by: string
           currency?: string | null
@@ -130,6 +133,7 @@ export type Database = {
           shipper_email?: string | null
           shipper_name: string
           shipper_phone?: string | null
+          shipper_zip_code?: string | null
           status?: Database["public"]["Enums"]["connote_status"] | null
           total_charges?: number
           tracking_updates?: Json | null
@@ -144,6 +148,7 @@ export type Database = {
           consignee_email?: string | null
           consignee_name?: string
           consignee_phone?: string | null
+          consignee_zip_code?: string | null
           created_at?: string
           created_by?: string
           currency?: string | null
@@ -167,6 +172,7 @@ export type Database = {
           shipper_email?: string | null
           shipper_name?: string
           shipper_phone?: string | null
+          shipper_zip_code?: string | null
           status?: Database["public"]["Enums"]["connote_status"] | null
           total_charges?: number
           tracking_updates?: Json | null
