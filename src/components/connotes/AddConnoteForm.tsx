@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useZipCodeLookup } from '@/hooks/useZipCodeLookup';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,7 +50,12 @@ export function AddConnoteForm() {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { lookupZipCode, isLoading: zipLookupLoading } = useZipCodeLookup();
   const [loading, setLoading] = useState(false);
+  const [zipLookupStates, setZipLookupStates] = useState({
+    shipper: false,
+    consignee: false
+  });
   const [formData, setFormData] = useState<ConnoteFormData>({
     awb_number: '',
     shipper_name: '',
@@ -213,6 +219,74 @@ export function AddConnoteForm() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Handle ZIP code lookup for shipper
+  const handleShipperZipChange = async (zipCode: string) => {
+    updateFormData('shipper_zip_code', zipCode);
+    
+    if (zipCode.length >= 5) {
+      setZipLookupStates(prev => ({ ...prev, shipper: true }));
+      
+      const result = await lookupZipCode(zipCode, formData.shipper_country);
+      
+      if (result.success && result.city && result.country) {
+        // Only auto-populate if fields are empty to allow manual override
+        if (!formData.shipper_city) {
+          updateFormData('shipper_city', result.city);
+        }
+        if (!formData.shipper_country) {
+          updateFormData('shipper_country', result.country);
+        }
+        
+        toast({
+          title: "ZIP Code Lookup",
+          description: `Auto-populated: ${result.city}, ${result.country}`,
+        });
+      } else if (result.error && zipCode.length >= 5) {
+        toast({
+          title: "ZIP Code Lookup",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+      
+      setZipLookupStates(prev => ({ ...prev, shipper: false }));
+    }
+  };
+
+  // Handle ZIP code lookup for consignee
+  const handleConsigneeZipChange = async (zipCode: string) => {
+    updateFormData('consignee_zip_code', zipCode);
+    
+    if (zipCode.length >= 5) {
+      setZipLookupStates(prev => ({ ...prev, consignee: true }));
+      
+      const result = await lookupZipCode(zipCode, formData.consignee_country);
+      
+      if (result.success && result.city && result.country) {
+        // Only auto-populate if fields are empty to allow manual override
+        if (!formData.consignee_city) {
+          updateFormData('consignee_city', result.city);
+        }
+        if (!formData.consignee_country) {
+          updateFormData('consignee_country', result.country);
+        }
+        
+        toast({
+          title: "ZIP Code Lookup",
+          description: `Auto-populated: ${result.city}, ${result.country}`,
+        });
+      } else if (result.error && zipCode.length >= 5) {
+        toast({
+          title: "ZIP Code Lookup",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+      
+      setZipLookupStates(prev => ({ ...prev, consignee: false }));
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center space-x-3">
@@ -345,13 +419,20 @@ export function AddConnoteForm() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="shipper_zip_code">Zip Code</Label>
+              <Label htmlFor="shipper_zip_code">
+                Zip Code
+                {zipLookupStates.shipper && (
+                  <Loader2 className="inline ml-2 h-3 w-3 animate-spin" />
+                )}
+              </Label>
               <Input
                 id="shipper_zip_code"
                 value={formData.shipper_zip_code}
                 onChange={(e) => updateFormData('shipper_zip_code', e.target.value)}
-                placeholder="e.g., 12345"
+                onBlur={(e) => handleShipperZipChange(e.target.value)}
+                placeholder="e.g., 12345 (auto-populates city & country)"
                 className={!validateZipCode(formData.shipper_zip_code, formData.shipper_country) && formData.shipper_zip_code && formData.shipper_country ? 'border-destructive' : ''}
+                disabled={zipLookupStates.shipper}
               />
               {!validateZipCode(formData.shipper_zip_code, formData.shipper_country) && formData.shipper_zip_code && formData.shipper_country && (
                 <p className="text-sm text-destructive mt-1">Invalid zip code format for {formData.shipper_country}</p>
@@ -429,13 +510,20 @@ export function AddConnoteForm() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="consignee_zip_code">Zip Code</Label>
+              <Label htmlFor="consignee_zip_code">
+                Zip Code
+                {zipLookupStates.consignee && (
+                  <Loader2 className="inline ml-2 h-3 w-3 animate-spin" />
+                )}
+              </Label>
               <Input
                 id="consignee_zip_code"
                 value={formData.consignee_zip_code}
                 onChange={(e) => updateFormData('consignee_zip_code', e.target.value)}
-                placeholder="e.g., 12345"
+                onBlur={(e) => handleConsigneeZipChange(e.target.value)}
+                placeholder="e.g., 12345 (auto-populates city & country)"
                 className={!validateZipCode(formData.consignee_zip_code, formData.consignee_country) && formData.consignee_zip_code && formData.consignee_country ? 'border-destructive' : ''}
+                disabled={zipLookupStates.consignee}
               />
               {!validateZipCode(formData.consignee_zip_code, formData.consignee_country) && formData.consignee_zip_code && formData.consignee_country && (
                 <p className="text-sm text-destructive mt-1">Invalid zip code format for {formData.consignee_country}</p>
