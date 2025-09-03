@@ -50,12 +50,8 @@ export function AddConnoteForm() {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { lookupZipCode, isLoading: zipLookupLoading } = useZipCodeLookup();
+  const { debouncedLookup, isLoading: zipLookupLoading } = useZipCodeLookup();
   const [loading, setLoading] = useState(false);
-  const [zipLookupStates, setZipLookupStates] = useState({
-    shipper: false,
-    consignee: false
-  });
   const [formData, setFormData] = useState<ConnoteFormData>({
     awb_number: '',
     shipper_name: '',
@@ -220,70 +216,70 @@ export function AddConnoteForm() {
   };
 
   // Handle ZIP code lookup for shipper
-  const handleShipperZipChange = async (zipCode: string) => {
+  const handleShipperZipChange = (zipCode: string) => {
     updateFormData('shipper_zip_code', zipCode);
     
-    if (zipCode.length >= 5) {
-      setZipLookupStates(prev => ({ ...prev, shipper: true }));
-      
-      const result = await lookupZipCode(zipCode, formData.shipper_country);
-      
-      if (result.success && result.city && result.country) {
-        // Only auto-populate if fields are empty to allow manual override
-        if (!formData.shipper_city) {
-          updateFormData('shipper_city', result.city);
+    if (zipCode.trim().length >= 3) {
+      debouncedLookup(
+        zipCode,
+        formData.shipper_country,
+        (result) => {
+          if (result.success && result.city && result.country) {
+            // Only auto-populate if fields are empty to allow manual override
+            if (!formData.shipper_city) {
+              updateFormData('shipper_city', result.city);
+            }
+            if (!formData.shipper_country) {
+              updateFormData('shipper_country', result.country);
+            }
+            
+            toast({
+              title: "ZIP Code Lookup",
+              description: `Auto-populated: ${result.city}, ${result.country}`,
+            });
+          } else if (result.error) {
+            toast({
+              title: "ZIP Code Lookup",
+              description: result.error,
+              variant: "destructive",
+            });
+          }
         }
-        if (!formData.shipper_country) {
-          updateFormData('shipper_country', result.country);
-        }
-        
-        toast({
-          title: "ZIP Code Lookup",
-          description: `Auto-populated: ${result.city}, ${result.country}`,
-        });
-      } else if (result.error && zipCode.length >= 5) {
-        toast({
-          title: "ZIP Code Lookup",
-          description: result.error,
-          variant: "destructive",
-        });
-      }
-      
-      setZipLookupStates(prev => ({ ...prev, shipper: false }));
+      );
     }
   };
 
   // Handle ZIP code lookup for consignee
-  const handleConsigneeZipChange = async (zipCode: string) => {
+  const handleConsigneeZipChange = (zipCode: string) => {
     updateFormData('consignee_zip_code', zipCode);
     
-    if (zipCode.length >= 5) {
-      setZipLookupStates(prev => ({ ...prev, consignee: true }));
-      
-      const result = await lookupZipCode(zipCode, formData.consignee_country);
-      
-      if (result.success && result.city && result.country) {
-        // Only auto-populate if fields are empty to allow manual override
-        if (!formData.consignee_city) {
-          updateFormData('consignee_city', result.city);
+    if (zipCode.trim().length >= 3) {
+      debouncedLookup(
+        zipCode,
+        formData.consignee_country,
+        (result) => {
+          if (result.success && result.city && result.country) {
+            // Only auto-populate if fields are empty to allow manual override
+            if (!formData.consignee_city) {
+              updateFormData('consignee_city', result.city);
+            }
+            if (!formData.consignee_country) {
+              updateFormData('consignee_country', result.country);
+            }
+            
+            toast({
+              title: "ZIP Code Lookup",
+              description: `Auto-populated: ${result.city}, ${result.country}`,
+            });
+          } else if (result.error) {
+            toast({
+              title: "ZIP Code Lookup",
+              description: result.error,
+              variant: "destructive",
+            });
+          }
         }
-        if (!formData.consignee_country) {
-          updateFormData('consignee_country', result.country);
-        }
-        
-        toast({
-          title: "ZIP Code Lookup",
-          description: `Auto-populated: ${result.city}, ${result.country}`,
-        });
-      } else if (result.error && zipCode.length >= 5) {
-        toast({
-          title: "ZIP Code Lookup",
-          description: result.error,
-          variant: "destructive",
-        });
-      }
-      
-      setZipLookupStates(prev => ({ ...prev, consignee: false }));
+      );
     }
   };
 
@@ -421,18 +417,17 @@ export function AddConnoteForm() {
             <div>
               <Label htmlFor="shipper_zip_code">
                 Zip Code
-                {zipLookupStates.shipper && (
+                {zipLookupLoading && (
                   <Loader2 className="inline ml-2 h-3 w-3 animate-spin" />
                 )}
               </Label>
               <Input
                 id="shipper_zip_code"
                 value={formData.shipper_zip_code}
-                onChange={(e) => updateFormData('shipper_zip_code', e.target.value)}
-                onBlur={(e) => handleShipperZipChange(e.target.value)}
+                onChange={(e) => handleShipperZipChange(e.target.value)}
                 placeholder="e.g., 12345 (auto-populates city & country)"
                 className={!validateZipCode(formData.shipper_zip_code, formData.shipper_country) && formData.shipper_zip_code && formData.shipper_country ? 'border-destructive' : ''}
-                disabled={zipLookupStates.shipper}
+                disabled={zipLookupLoading}
               />
               {!validateZipCode(formData.shipper_zip_code, formData.shipper_country) && formData.shipper_zip_code && formData.shipper_country && (
                 <p className="text-sm text-destructive mt-1">Invalid zip code format for {formData.shipper_country}</p>
@@ -512,18 +507,17 @@ export function AddConnoteForm() {
             <div>
               <Label htmlFor="consignee_zip_code">
                 Zip Code
-                {zipLookupStates.consignee && (
+                {zipLookupLoading && (
                   <Loader2 className="inline ml-2 h-3 w-3 animate-spin" />
                 )}
               </Label>
               <Input
                 id="consignee_zip_code"
                 value={formData.consignee_zip_code}
-                onChange={(e) => updateFormData('consignee_zip_code', e.target.value)}
-                onBlur={(e) => handleConsigneeZipChange(e.target.value)}
+                onChange={(e) => handleConsigneeZipChange(e.target.value)}
                 placeholder="e.g., 12345 (auto-populates city & country)"
                 className={!validateZipCode(formData.consignee_zip_code, formData.consignee_country) && formData.consignee_zip_code && formData.consignee_country ? 'border-destructive' : ''}
-                disabled={zipLookupStates.consignee}
+                disabled={zipLookupLoading}
               />
               {!validateZipCode(formData.consignee_zip_code, formData.consignee_country) && formData.consignee_zip_code && formData.consignee_country && (
                 <p className="text-sm text-destructive mt-1">Invalid zip code format for {formData.consignee_country}</p>

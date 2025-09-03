@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 interface ZipCodeResult {
   city: string;
@@ -9,6 +9,7 @@ interface ZipCodeResult {
 
 export const useZipCodeLookup = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
   const lookupZipCode = useCallback(async (zipCode: string, currentCountry?: string): Promise<ZipCodeResult> => {
     if (!zipCode || zipCode.trim().length < 3) {
@@ -62,7 +63,29 @@ export const useZipCodeLookup = () => {
     }
   }, []);
 
-  return { lookupZipCode, isLoading };
+  const debouncedLookup = useCallback((
+    zipCode: string, 
+    currentCountry: string | undefined, 
+    onResult: (result: ZipCodeResult) => void,
+    delay: number = 800
+  ) => {
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Set new timeout
+    timeoutRef.current = setTimeout(async () => {
+      if (zipCode.trim().length >= 3) {
+        setIsLoading(true);
+        const result = await lookupZipCode(zipCode, currentCountry);
+        onResult(result);
+        setIsLoading(false);
+      }
+    }, delay);
+  }, [lookupZipCode]);
+
+  return { lookupZipCode, debouncedLookup, isLoading };
 };
 
 // Helper function to get country codes for API
