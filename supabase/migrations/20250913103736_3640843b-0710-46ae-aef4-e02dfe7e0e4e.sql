@@ -1,0 +1,1 @@
+UPDATE profiles SET role = 'main_admin' WHERE email = 'nmedia.basil@gmail.com'

@@ -64,7 +64,7 @@ export function ConnotesList() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setConnotes(data || []);
+      setConnotes(data as any[] || []);
     } catch (error: any) {
       toast({
         title: "Error",

@@ -56,7 +56,7 @@ export function ConnoteInvoice() {
         .single();
 
       if (error) throw error;
-      setConnote(data);
+      setConnote(data as any);
     } catch (error: any) {
       toast({
         title: "Error",

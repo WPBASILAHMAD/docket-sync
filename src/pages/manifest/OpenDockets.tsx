@@ -41,7 +41,7 @@ export default function OpenDockets() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setDockets(data || []);
+      setDockets(data as any[] || []);
     } catch (error) {
       toast({
         title: 'Error',

@@ -43,7 +43,7 @@ export default function UserManagement() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProfiles(data || []);
+      setProfiles(data as Profile[]);
     } catch (error) {
       toast({
         title: 'Error',

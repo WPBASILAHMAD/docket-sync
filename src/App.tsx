@@ -16,6 +16,7 @@ import UserManagement from "./pages/users/UserManagement";
 import TrackingManagement from "./pages/tracking/TrackingManagement";
 import Finance from "./pages/finance/Finance";
 import Settings from "./pages/settings/Settings";
+import Profile from "./pages/profile/Profile";
 import { ModulePermissions } from "./pages/settings/ModulePermissions";
 import NotFound from "./pages/NotFound";
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/tracking" element={<TrackingManagement />} />
               <Route path="/finance" element={<Finance />} />
               <Route path="/users" element={<UserManagement />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/module-permissions" element={<ModulePermissions />} />
               
