@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Users, UserPlus, Edit, Mail, Phone, Calendar, Shield } from 'lucide-react';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { CreateUserDialog } from '@/components/users/CreateUserDialog';
+import { EditUserDialog } from '@/components/users/EditUserDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   id: string;
@@ -32,14 +30,6 @@ export default function UserManagement() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
-
-  const [newUserData, setNewUserData] = useState({
-    email: '',
-    password: '',
-    full_name: '',
-    phone: '',
-    role: 'staff' as 'main_admin' | 'second_admin' | 'manager' | 'staff'
-  });
 
   useEffect(() => {
     fetchProfiles();
@@ -65,17 +55,6 @@ export default function UserManagement() {
     }
   };
 
-  const createUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Note: User creation requires proper Supabase Auth setup
-    // This is a placeholder for demonstration
-    toast({
-      title: 'Info',
-      description: 'User creation requires proper authentication setup',
-      variant: 'destructive',
-    });
-    setIsCreateOpen(false);
-  };
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -132,81 +111,26 @@ export default function UserManagement() {
           </div>
         </div>
 
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add User
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-card border-border">
-            <DialogHeader>
-              <DialogTitle className="text-foreground">Create New User</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={createUser} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="full_name">Full Name *</Label>
-                <Input
-                  id="full_name"
-                  value={newUserData.full_name}
-                  onChange={(e) => setNewUserData(prev => ({ ...prev, full_name: e.target.value }))}
-                  placeholder="Enter full name"
-                  required
-                  className="bg-background border-border"
-                />
-              </div>
+        <Button 
+          onClick={() => setIsCreateOpen(true)}
+          className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-glow"
+        >
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add User
+        </Button>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newUserData.email}
-                  onChange={(e) => setNewUserData(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="Enter email address"
-                  required
-                  className="bg-background border-border"
-                />
-              </div>
+        <CreateUserDialog
+          open={isCreateOpen}
+          onOpenChange={setIsCreateOpen}
+          onSuccess={fetchProfiles}
+        />
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={newUserData.phone}
-                  onChange={(e) => setNewUserData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="Enter phone number"
-                  className="bg-background border-border"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role">Role *</Label>
-                <Select value={newUserData.role} onValueChange={(value) => setNewUserData(prev => ({ ...prev, role: value as any }))}>
-                  <SelectTrigger className="bg-background border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    {currentUser?.role === 'main_admin' && (
-                      <SelectItem value="second_admin">Second Admin</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" className="bg-gradient-primary hover:opacity-90 text-primary-foreground">
-                  Create User
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <EditUserDialog
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+          profile={selectedProfile}
+          onSuccess={fetchProfiles}
+        />
       </div>
 
       {/* Users Grid */}
