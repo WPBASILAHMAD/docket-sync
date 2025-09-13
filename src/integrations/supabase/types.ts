@@ -14,7 +14,210 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      connotes: {
+        Row: {
+          awb_number: string
+          cod_amount: number | null
+          consignee_address: string
+          consignee_city: string
+          consignee_country: string
+          consignee_email: string | null
+          consignee_name: string
+          consignee_phone: string | null
+          consignee_zip_code: string
+          created_at: string
+          created_by: string
+          declared_value: number | null
+          dimensions: string | null
+          freight_charges: number
+          fuel_surcharge: number | null
+          handling_charges: number | null
+          id: string
+          insurance_charges: number | null
+          insurance_value: number | null
+          other_charges: number | null
+          pieces: number
+          service_type: string
+          shipper_address: string
+          shipper_city: string
+          shipper_country: string
+          shipper_email: string | null
+          shipper_name: string
+          shipper_phone: string | null
+          shipper_zip_code: string
+          special_instructions: string | null
+          status: string
+          total_charges: number
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          awb_number: string
+          cod_amount?: number | null
+          consignee_address: string
+          consignee_city: string
+          consignee_country: string
+          consignee_email?: string | null
+          consignee_name: string
+          consignee_phone?: string | null
+          consignee_zip_code: string
+          created_at?: string
+          created_by: string
+          declared_value?: number | null
+          dimensions?: string | null
+          freight_charges?: number
+          fuel_surcharge?: number | null
+          handling_charges?: number | null
+          id?: string
+          insurance_charges?: number | null
+          insurance_value?: number | null
+          other_charges?: number | null
+          pieces?: number
+          service_type?: string
+          shipper_address: string
+          shipper_city: string
+          shipper_country: string
+          shipper_email?: string | null
+          shipper_name: string
+          shipper_phone?: string | null
+          shipper_zip_code: string
+          special_instructions?: string | null
+          status?: string
+          total_charges?: number
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          awb_number?: string
+          cod_amount?: number | null
+          consignee_address?: string
+          consignee_city?: string
+          consignee_country?: string
+          consignee_email?: string | null
+          consignee_name?: string
+          consignee_phone?: string | null
+          consignee_zip_code?: string
+          created_at?: string
+          created_by?: string
+          declared_value?: number | null
+          dimensions?: string | null
+          freight_charges?: number
+          fuel_surcharge?: number | null
+          handling_charges?: number | null
+          id?: string
+          insurance_charges?: number | null
+          insurance_value?: number | null
+          other_charges?: number | null
+          pieces?: number
+          service_type?: string
+          shipper_address?: string
+          shipper_city?: string
+          shipper_country?: string
+          shipper_email?: string | null
+          shipper_name?: string
+          shipper_phone?: string | null
+          shipper_zip_code?: string
+          special_instructions?: string | null
+          status?: string
+          total_charges?: number
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      dockets: {
+        Row: {
+          bags: number
+          carrier: string
+          country: string
+          created_at: string
+          created_by: string
+          date: string
+          docket_no: string
+          flight_no: string
+          id: string
+          load_no: string
+          station: string
+          status: string
+          summary_no: string
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          bags?: number
+          carrier: string
+          country: string
+          created_at?: string
+          created_by: string
+          date: string
+          docket_no: string
+          flight_no: string
+          id?: string
+          load_no: string
+          station: string
+          status?: string
+          summary_no: string
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          bags?: number
+          carrier?: string
+          country?: string
+          created_at?: string
+          created_by?: string
+          date?: string
+          docket_no?: string
+          flight_no?: string
+          id?: string
+          load_no?: string
+          station?: string
+          status?: string
+          summary_no?: string
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          phone: string | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          is_active?: boolean
+          phone?: string | null
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          phone?: string | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
